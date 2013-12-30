@@ -1,0 +1,108 @@
+#!/bin/bash
+
+version="3.0"
+dest_dir=
+image_name=
+open=0
+no_keep=1
+default_dir_30=pharo30
+default_dir_20=pharo20
+default_dir_14=pharo14
+download_dest_dir=/tmp/pharo-images
+
+while getopts "okhv:d:n:i:" option; do 
+	case "$option" in
+		v) version=$OPTARG ;;
+		o) open=1 ;;
+		k) no_keep=0 ;;
+		d) dest_dir=$OPTARG ;;
+		n) image_name=$OPTARG ;;
+        i) dest_dir="issue$OPTARG" ;;
+		h) 
+			echo "Usage: $0 [-v 1.4|2.0] [-d dir] [-n name] [-i issue] [-o] [-k]"
+			exit 1
+			;;
+		\?)
+      		echo "Invalid option: -$OPTARG" >&2
+      		exit 1
+      		;;
+    	:)
+      		echo "Option -$OPTARG requires an argument." >&2
+      		exit 1
+      		;; 
+	esac
+done
+
+if [ "$dest_dir" == "" ]; then
+	case $version in
+		3.0) dest_dir=$default_dir_30 ;;
+		2.0) dest_dir=$default_dir_20 ;;
+		1.4) dest_dir=$default_dir_14 ;; 
+	esac
+fi
+
+if [ "$image_name" == "" ]; then
+	image_name=$dest_dir
+fi 
+
+# downloafing 
+
+keep_file="Pharo-$version-last.zip"
+pharo_name="Pharo"
+file_name="latest.zip"
+sources_to_remove=
+case $version in
+	3.0)
+		download_url="http://files.pharo.org/image/30/latest.zip"
+		;;
+	2.0)
+		download_url="http://files.pharo.org/image/20/latest.zip"
+		;;
+	1.4)
+		download_url="http://files.pharo.org/image/14/latest.zip"
+		sources_to_remove="PharoV10.sources"
+		;;
+	*)
+		echo "Version $version not supported"
+		exit 1
+		;;
+esac
+
+wget --directory-prefix=$download_dest_dir --tries=1 --no-check-certificate $download_url
+
+# Latest image zip
+if [ -e $download_dest_dir/$file_name ]; then
+	if [ -e $download_dest_dir/$keep_file ]; then 
+		rm $download_dest_dir/$keep_file
+	fi
+	mv $download_dest_dir/$file_name $download_dest_dir/$keep_file
+fi
+
+# Backup dir if exists
+if [ -d $dest_dir ]; then
+	if [ $no_keep == 1 ]; then
+		if [ -d ~$dest_dir ]; then 
+			rm -Rf ~$dest_dir		
+		fi
+		mv $dest_dir $dest_dir~
+	else
+		mv $dest_dir/$image_name.image $dest_dir/$image_name.image~
+		mv $dest_dir/$image_name.changes $dest_dir/$image_name.changes~ 
+	fi
+fi
+
+unzip -j -d $dest_dir $download_dest_dir/$keep_file 
+#mv $pharo_name $dest_dir
+mv $dest_dir/$pharo_name*.image $dest_dir/$image_name.image
+mv $dest_dir/$pharo_name*.changes $dest_dir/$image_name.changes
+
+if [ "$sources_to_remove" != "" ]; then
+	if [ -e $dest_dir/$sources_to_remove ]; then 
+		rm $dest_dir/$sources_to_remove
+	fi
+fi
+
+# open if asked
+if [ $open == 1 ]; then
+	pharo $dest_dir/$image_name.image
+fi

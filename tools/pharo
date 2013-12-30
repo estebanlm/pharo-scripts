@@ -1,0 +1,4 @@
+#! /bin/bash
+
+/Applications/Pharo/Pharo.app/Contents/MacOS/Pharo $@ &
+

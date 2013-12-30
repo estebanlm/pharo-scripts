@@ -1,0 +1,4 @@
+#! /bin/bash
+
+/Applications/Pharo/StackVM.app/Contents/MacOS/StackVM $@ &
+

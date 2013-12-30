@@ -1,0 +1,1 @@
+pharo current/Pharo.image eval --no-quit "ScriptLoader new verifyNewUpdate"
