@@ -1,0 +1,45 @@
+#! /bin/bash
+
+config_file=pharo_config
+default_baseline=baseline
+default_group=default
+
+image=`basename $1`
+dest_dir=`dirname $1`
+current_dir=`pwd` 
+
+if [ "$image" == "" ]; then
+	echo "Usage: $0 /path/to/image-name"
+	exit 1
+fi
+
+if [ ! -f $dest_dir/$config_file ]; then 
+	echo "No $config_file file in $dest_dir"
+	exit 1
+fi 
+
+. $dest_dir/$config_file
+
+if [ "$repository" == "" ]; then 
+	echo "No repository specified"
+	exit 1
+fi
+
+if [ "$configuration" == "" ]; then 
+	echo "No configuration/baseline specified"
+	exit 1
+fi
+
+if [ "$baseline" == "" ]; then 
+	baseline=$default_baseline
+fi
+
+if [ "$group" == "" ]; then 
+	group=$default_group
+fi
+
+echo "Installing $configuration[$baseline] in $image"
+
+cd $dest_dir
+cpharo $image.image config "$repository" $configuration --install=$baseline --group=$group
+cd $current_dir

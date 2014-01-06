@@ -5,6 +5,8 @@ dest_dir=
 image_name=
 open=0
 no_keep=1
+repository=
+config=
 default_dir_30=pharo30
 default_dir_20=pharo20
 default_dir_14=pharo14
@@ -100,6 +102,10 @@ if [ "$sources_to_remove" != "" ]; then
 	if [ -e $dest_dir/$sources_to_remove ]; then 
 		rm $dest_dir/$sources_to_remove
 	fi
+fi
+
+if [ -f $dest_dir/pharo_config ]; then
+	phconfig $dest_dir/$image_name
 fi
 
 # open if asked
