@@ -1,0 +1,6 @@
+# Configuration for autoload of projects
+
+repository=filetree://repository/mc
+configuration=BaselineOfXXX
+baseline=
+groups=

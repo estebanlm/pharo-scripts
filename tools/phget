@@ -4,7 +4,7 @@ version="3.0"
 dest_dir=
 image_name=
 open=0
-no_keep=1
+no_keep=0
 repository=
 config=
 default_dir_30=pharo30
@@ -16,7 +16,7 @@ while getopts "okhv:d:n:i:" option; do
 	case "$option" in
 		v) version=$OPTARG ;;
 		o) open=1 ;;
-		k) no_keep=0 ;;
+		k) no_keep=1 ;;
 		d) dest_dir=$OPTARG ;;
 		n) image_name=$OPTARG ;;
         i) dest_dir="issue$OPTARG" ;;
