@@ -12,6 +12,20 @@ default_dir_20=pharo20
 default_dir_14=pharo14
 download_dest_dir=/tmp/pharo-images
 
+print_usage() {
+	echo "Usage: $0 [-v 2.0|3.0] [-d dir] [-n name] [-i issue] [-k] [-o]"
+	echo ""
+	echo " -v 	Version number to download. Default is 3.0"
+	echo " -d 	Destination directory of downloaded version. Default is pharo30"
+	echo " -n 	Name of image. Default is the same name from -d option."
+	echo " -i 	Equivallent to -d issueNUMBER"
+	echo " -k	Kill any existing previous directory"
+	echo " -o 	Open image after download."
+	echo ""
+	echo "Together with this instructions, $0 will search for file pharo_config in"
+	echo "destination directory, and execute phconfig if he found it."
+}
+
 while getopts "okhv:d:n:i:" option; do 
 	case "$option" in
 		v) version=$OPTARG ;;
@@ -21,7 +35,7 @@ while getopts "okhv:d:n:i:" option; do
 		n) image_name=$OPTARG ;;
         i) dest_dir="issue$OPTARG" ;;
 		h) 
-			echo "Usage: $0 [-v 1.4|2.0] [-d dir] [-n name] [-i issue] [-o] [-k]"
+			print_usage
 			exit 1
 			;;
 		\?)
