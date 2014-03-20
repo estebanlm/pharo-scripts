@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e
+
 config_file=pharo_config
 default_baseline=baseline
 default_group=default
