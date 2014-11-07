@@ -2,22 +2,23 @@
 
 set -e
 
-version="3.0"
+version="4.0"
 dest_dir=
 image_name=
 open=0
 no_keep=0
 repository=
 config=
+default_dir_40=pharo40
 default_dir_30=pharo30
 default_dir_20=pharo20
 default_dir_14=pharo14
 download_dest_dir=/tmp/pharo-images
 
 print_usage() {
-	echo "Usage: $0 [-v 2.0|3.0] [-d dir] [-n name] [-i issue] [-k] [-o]"
+	echo "Usage: $0 [-v 2.0|3.0|4.0] [-d dir] [-n name] [-i issue] [-k] [-o]"
 	echo ""
-	echo " -v 	Version number to download. Default is 3.0"
+	echo " -v 	Version number to download. Default is 4.0"
 	echo " -d 	Destination directory of downloaded version. Default is pharo30"
 	echo " -n 	Name of image. Default is the same name from -d option."
 	echo " -i 	Equivallent to -d issueNUMBER"
@@ -53,6 +54,7 @@ done
 
 if [ "$dest_dir" == "" ]; then
 	case $version in
+		4.0) dest_dir=$default_dir_40 ;;
 		3.0) dest_dir=$default_dir_30 ;;
 		2.0) dest_dir=$default_dir_20 ;;
 		1.4) dest_dir=$default_dir_14 ;; 
@@ -70,6 +72,9 @@ pharo_name="Pharo"
 file_name="latest.zip"
 sources_to_remove=
 case $version in
+	4.0)
+		download_url="http://files.pharo.org/image/40/latest.zip"
+		;;
 	3.0)
 		download_url="http://files.pharo.org/image/30/latest.zip"
 		;;
@@ -104,8 +109,12 @@ if [ -d $dest_dir ]; then
 		fi
 		mv $dest_dir $dest_dir~
 	else
-		mv $dest_dir/$image_name.image $dest_dir/$image_name.image~
-		mv $dest_dir/$image_name.changes $dest_dir/$image_name.changes~ 
+		if [ -e $dest_dir/$image_name.image ]; then 
+			mv $dest_dir/$image_name.image $dest_dir/$image_name.image~
+		fi
+		if [ -e $dest_dir/$image_name.changes ]; then 
+			mv $dest_dir/$image_name.changes $dest_dir/$image_name.changes~ 
+		fi
 	fi
 fi
 

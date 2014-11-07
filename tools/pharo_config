@@ -4,3 +4,4 @@ repository=filetree://repository/mc
 configuration=BaselineOfXXX
 baseline=
 groups=
+postload=
