@@ -1,8 +1,8 @@
 #! /bin/bash
 
 sudo cp ./pharo /usr/bin
-sudo cp ./cpharo /usr/bin
-sudo cp ./spharo /usr/bin
+sudo cp ./pharo-cmd /usr/bin
+sudo cp ./pharo-s /usr/bin
 sudo cp ./phget /usr/bin
 sudo cp ./phmv /usr/bin
 sudo cp ./phconfig /usr/bin
