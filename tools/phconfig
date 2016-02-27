@@ -43,7 +43,7 @@ fi
 echo "Installing $configuration[$baseline] in $image"
 
 cd $dest_dir
-cpharo $image.image config "$repository" $configuration --install=$baseline --group=$group
+pharo-cmd $image.image config "$repository" $configuration --install=$baseline --group=$group
 
 if [ "$postload" != "" ]; then
 	cpharo $image.image st $postload --save --quit

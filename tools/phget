@@ -19,7 +19,7 @@ download_dest_dir=/tmp/pharo-images
 print_usage() {
 	echo "Usage: $0 [-v 2.0|3.0|4.0|5.0] [-d dir] [-n name] [-i issue] [-k] [-o]"
 	echo ""
-	echo " -v 	Version number to download. Default is 4.0"
+	echo " -v 	Version number to download. Default is 5.0"
 	echo " -d 	Destination directory of downloaded version. Default is pharo30"
 	echo " -n 	Name of image. Default is the same name from -d option."
 	echo " -i 	Equivallent to -d issueNUMBER"
@@ -67,26 +67,18 @@ if [ "$image_name" == "" ]; then
 	image_name=$dest_dir
 fi 
 
-# downloafing 
+# downloading 
 
 keep_file="Pharo-$version-last.zip"
 pharo_name="Pharo"
 file_name="latest.zip"
 sources_to_remove=
 case $version in
-	5.0)
-		download_url="http://files.pharo.org/image/50/latest.zip"
-		;;
-	4.0)
-		download_url="http://files.pharo.org/image/40/latest.zip"
-		;;
-	3.0)
-		download_url="http://files.pharo.org/image/30/latest.zip"
-		;;
-	2.0)
-		download_url="http://files.pharo.org/image/20/latest.zip"
-		;;
-	1.4)
+	5.0) download_url="http://files.pharo.org/image/50/latest.zip" ;;
+	4.0) download_url="http://files.pharo.org/image/40/latest.zip" ;;
+	3.0) download_url="http://files.pharo.org/image/30/latest.zip" ;;
+	2.0) download_url="http://files.pharo.org/image/20/latest.zip" ;;
+	1.4) 
 		download_url="http://files.pharo.org/image/14/latest.zip"
 		sources_to_remove="PharoV10.sources"
 		;;
@@ -140,5 +132,10 @@ fi
 
 # open if asked
 if [ $open == 1 ]; then
-	pharo $dest_dir/$image_name.image
+	if [ "$version" == "5.0" ]; then
+		vm=pharo
+	else
+		vm=pharo-legacy
+	fi
+	$vm $dest_dir/$image_name.image
 fi
