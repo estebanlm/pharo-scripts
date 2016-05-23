@@ -2,16 +2,19 @@
 
 set -e
 
-config_file=pharo_config
-default_baseline=baseline
-default_group=default
+default_config_file="config.st"
 
-image=`basename $1`
-dest_dir=`dirname $1`
-current_dir=`pwd` 
+image="$1"
+dest_dir="`dirname $1`"
 
-if [ "$image" == "" ]; then
-	echo "Usage: $0 /path/to/image-name"
+if [ ! -z "$2" ]; then
+	config_file="$2"
+else
+	config_file="$default_config_file"
+fi
+
+if [ -z "$image" ]; then
+	echo "Usage: $0 /path/to/image-name [config.st]"
 	exit 1
 fi
 
@@ -20,33 +23,5 @@ if [ ! -f $dest_dir/$config_file ]; then
 	exit 1
 fi 
 
-. $dest_dir/$config_file
-
-if [ "$repository" == "" ]; then 
-	echo "No repository specified"
-	exit 1
-fi
-
-if [ "$configuration" == "" ]; then 
-	echo "No configuration/baseline specified"
-	exit 1
-fi
-
-if [ "$baseline" == "" ]; then 
-	baseline=$default_baseline
-fi
-
-if [ "$group" == "" ]; then 
-	group=$default_group
-fi
-
-echo "Installing $configuration[$baseline] in $image"
-
-cd $dest_dir
-pharo-cmd $image.image config "$repository" $configuration --install=$baseline --group=$group
-
-if [ "$postload" != "" ]; then
-	cpharo $image.image st $postload --save --quit
-fi
-
-cd $current_dir
+echo "Running contents of $dest_dir/$config_file into $image"
+pharo-sh $image --no-default-preferences st --save "$config_file"
