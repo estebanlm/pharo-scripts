@@ -2,25 +2,23 @@
 
 set -e
 
+supported_versions="1.4,2.0,3.0,4.0,5.0,6.0"
 version="6.0"
+arch="i386"
 dest_dir=
 image_name=
 open=0
 no_keep=0
 repository=
 config=
-default_dir_60=pharo60
-default_dir_50=pharo50
-default_dir_40=pharo40
-default_dir_30=pharo30
-default_dir_20=pharo20
-default_dir_14=pharo14
+default_dir_prefix="pharo"
 download_dest_dir=/tmp/pharo-images
 
 print_usage() {
-	echo "Usage: $0 [-v 2.0|3.0|4.0|5.0|6.0] [-d dir] [-n name] [-i issue] [-k] [-o]"
+	echo "Usage: $0 [-v 1.4|2.0|3.0|4.0|5.0|6.0] [-X] [-d dir] [-n name] [-i issue] [-k] [-o]"
 	echo ""
 	echo " -v 	Version number to download. Default is 6.0"
+	echo " -X 	Download 64bits version (works with version 6.0+)"	
 	echo " -d 	Destination directory of downloaded version. Default is pharo60"
 	echo " -n 	Name of image. Default is the same name from -d option."
 	echo " -i 	Equivallent to -d issueNUMBER"
@@ -31,9 +29,10 @@ print_usage() {
 	echo "destination directory, and execute phconfig if he found it."
 }
 
-while getopts "okhv:d:n:i:" option; do 
+while getopts "okhXv:d:n:i:" option; do 
 	case "$option" in
 		v) version=$OPTARG ;;
+		X) arch="x86_64" ;;
 		o) open=1 ;;
 		k) no_keep=1 ;;
 		d) dest_dir=$OPTARG ;;
@@ -54,15 +53,19 @@ while getopts "okhv:d:n:i:" option; do
 	esac
 done
 
+if [[ ! $supported_versions == *"$version"* ]]; then
+	echo "Version $version not supported"
+	exit 1
+fi
+
+flat_version="`echo $version | sed 's/\.//'`"
+arch_suffix=
+if [ "$arch" == "x86_64" ]; then
+	arch_suffix="-64"
+fi 
+
 if [ -z "$dest_dir" ]; then
-	case $version in
-		6.0) dest_dir=$default_dir_60 ;;
-		5.0) dest_dir=$default_dir_50 ;;
-		4.0) dest_dir=$default_dir_40 ;;
-		3.0) dest_dir=$default_dir_30 ;;
-		2.0) dest_dir=$default_dir_20 ;;
-		1.4) dest_dir=$default_dir_14 ;; 
-	esac
+	dest_dir="$default_dir_prefix$flat_version$arch_suffix"
 fi
 
 if [ -z "$image_name" ]; then
@@ -70,36 +73,16 @@ if [ -z "$image_name" ]; then
 fi 
 
 # downloading 
-
-keep_file="Pharo-$version-last.zip"
+keep_file_name="$download_dest_dir/Pharo-$version-$arch-last.zip"
 pharo_name="Pharo"
-file_name="latest.zip"
+file_name="latest$arch_suffix.zip"
 sources_to_remove=
-case $version in
-	6.0) download_url="http://files.pharo.org/image/60/latest.zip" ;;
-	5.0) download_url="http://files.pharo.org/image/50/latest.zip" ;;
-	4.0) download_url="http://files.pharo.org/image/40/latest.zip" ;;
-	3.0) download_url="http://files.pharo.org/image/30/latest.zip" ;;
-	2.0) download_url="http://files.pharo.org/image/20/latest.zip" ;;
-	1.4) 
-		download_url="http://files.pharo.org/image/14/latest.zip"
-		sources_to_remove="PharoV10.sources"
-		;;
-	*)
-		echo "Version $version not supported"
-		exit 1
-		;;
-esac
+download_url="http://files.pharo.org/get-files/$flat_version/pharo$arch_suffix.zip"
 
-wget --directory-prefix=$download_dest_dir --tries=1 --no-check-certificate $download_url
-
-# Latest image zip
-if [ -e $download_dest_dir/$file_name ]; then
-	if [ -e $download_dest_dir/$keep_file ]; then 
-		rm $download_dest_dir/$keep_file
-	fi
-	mv $download_dest_dir/$file_name $download_dest_dir/$keep_file
+if [ -e $keep_file_name ]; then
+	rm $keep_file_name
 fi
+wget -O $keep_file_name --tries=1 --no-check-certificate $download_url
 
 # Backup dir if exists
 if [ -d $dest_dir ]; then
@@ -118,7 +101,7 @@ if [ -d $dest_dir ]; then
 	fi
 fi
 
-unzip -j -d $dest_dir $download_dest_dir/$keep_file 
+unzip -j -d $dest_dir $keep_file_name
 #mv $pharo_name $dest_dir
 mv $dest_dir/$pharo_name*.image $dest_dir/$image_name.image
 mv $dest_dir/$pharo_name*.changes $dest_dir/$image_name.changes
@@ -138,8 +121,8 @@ else
 fi
 # open if asked
 if [ $open == 1 ]; then
-	if ((`echo $version | sed 's/\.//'` >= 50 )); then
-		vm=pharo
+	if (($flat_version >= 50 )); then
+		vm=pharo$arch_suffix
 	else
 		vm=pharo-legacy
 	fi
